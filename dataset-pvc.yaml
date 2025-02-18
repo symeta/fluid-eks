@@ -8,3 +8,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
+  selector:
+    matchLabels:
+      dataset.fluid.io/name: s3-dataset
+      dataset.fluid.io/namespace: fluid-system
