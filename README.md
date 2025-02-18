@@ -1,7 +1,7 @@
 # fluid-eks
 The objective of this repo is to test the performance and scalability of fluid on amazon eks
 
-## amazon eks cluster provision
+## 1.amazon eks cluster provision
 
 - pre-requisite
   - provision an ec2
@@ -10,6 +10,65 @@ The objective of this repo is to test the performance and scalability of fluid o
     curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
     sudo mv -v /tmp/eksctl /usr/local/bin
     eksctl version
-    eksctl create cluster -f f6.yaml
-    ``` 
-- 
+    ```
+  - install kubectl on the ec2
+    ```sh
+    aws sts get-caller-identity
+    curl --silent --location -o /usr/local/bin/kubectl \
+    https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.3/2024-12-12/bin/linux/amd64/kubectl
+    chmod +x /usr/local/bin/kubectl
+    kubectl version --client
+    ```
+- provision eks cluster
+  ```sh
+  eksctl create cluster -f f6.yaml
+
+  #wait till the cluster been provisioned, takes around 15 minutes
+
+  aws eks update-kubeconfig --region us-west-2 --name f6
+  ```
+
+## 2.fluid installation
+
+-  install helm
+   ```sh
+   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+   chmod 700 get_helm.sh
+   ./get_helm.sh
+   ```
+-  install fluid
+   ```sh
+   helm repo add fluid https://fluid-cloudnative.github.io/charts
+   helm repo update
+   helm upgrade --install fluid fluid/fluid -n fluid-system-feb15 --set csi.kubelet.kubeConfigFile="/var/lib/kubelet/kubeconfig" --set csi.kubelet.certDir="/etc/kubernetes/pki"
+   ```
+
+- check fluid has been successfully installed
+  ```sh
+  kubectl get pod -n=fluid-system #all pods shoud be running
+  ```
+## 3.fluid alluxioruntime to cache data from s3 bucket
+
+- create dataset, alluxioruntime pod, relevant pvc 
+  ```sh
+  kubectl apply -f dataset.yaml -n fluid-system
+  kubectl apply -f alluxioruntime.yaml -n fluid-system
+  kubectl apply -f dataset-pvc.yaml -n fluid-system
+  ```
+- check the status of the above
+  ```sh
+  # Check Dataset status
+  kubectl get dataset s3-dataset -n fluid-system
+  
+  # Check AlluxioRuntime status
+  kubectl get alluxioruntime s3-dataset -n fluid-system
+  
+  # Check PVC status
+  kubectl get pvc s3-dataset -n fluid-system
+  ```
+
+## 4.create an app to read data from fluid alluxioruntime data cache
+```sh
+kubectl apply -f data-reader-pod.yaml -n fluid-system
+```
+
