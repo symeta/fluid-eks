@@ -4,11 +4,16 @@ metadata:
   name: s3-dataset
 spec:
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
   selector:
-    matchLabels:
-      dataset.fluid.io/name: s3-dataset
-      dataset.fluid.io/namespace: fluid-system
+    matchExpressions:
+    - key: name
+      operator: In
+      values: ["s3-dataset"]    
+#  selector:
+#    matchLabels:
+#      dataset.fluid.io/name: s3-dataset
+#      dataset.fluid.io/namespace: fluid-system
