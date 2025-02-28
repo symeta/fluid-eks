@@ -40,7 +40,7 @@ The objective of this repo is to test the performance and scalability of fluid o
    ```sh
    helm repo add fluid https://fluid-cloudnative.github.io/charts
    helm repo update
-   helm upgrade --install fluid fluid/fluid -n fluid-system-feb15 --set csi.kubelet.kubeConfigFile="/var/lib/kubelet/kubeconfig" --set csi.kubelet.certDir="/etc/kubernetes/pki"
+   helm upgrade --install fluid fluid/fluid -n fluid-system --set csi.kubelet.kubeConfigFile="/var/lib/kubelet/kubeconfig" --set csi.kubelet.certDir="/etc/kubernetes/pki"
    ```
 
 - check fluid has been successfully installed
@@ -49,11 +49,10 @@ The objective of this repo is to test the performance and scalability of fluid o
   ```
 ## 3.fluid alluxioruntime to cache data from s3 bucket
 
-- create dataset, alluxioruntime pod, relevant pvc 
+- create dataset, alluxioruntime pod. pvc will be auto-created. 
   ```sh
   kubectl apply -f dataset.yaml -n fluid-system
   kubectl apply -f alluxioruntime.yaml -n fluid-system
-  kubectl apply -f dataset-pvc.yaml -n fluid-system
   ```
 - check the status of the above
   ```sh
@@ -69,6 +68,26 @@ The objective of this repo is to test the performance and scalability of fluid o
 
 ## 4.create an app to read data from fluid alluxioruntime data cache
 ```sh
+#run the pod
 kubectl apply -f data-reader-pod.yaml -n fluid-system
+
+#check the status of the pod
+kubectl describe pod data-reader-pod -n fluid-system
 ```
+
+## delete resources
+```sh
+#delete the app pod
+kubectl delete pod data-reader-pod -n fluid-system
+
+# Delete PVC first
+kubectl delete pvc s3-dataset -n fluid-system
+
+# Delete AlluxioRuntime if it exists
+kubectl delete alluxioruntime s3-dataset -n fluid-system
+
+# Delete Dataset
+kubectl delete dataset s3-dataset -n fluid-system
+```
+
 
