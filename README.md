@@ -48,10 +48,14 @@ The objective of this repo is to test the performance and scalability of fluid o
   kubectl get pod -n=fluid-system #all pods shoud be running
   ```
 ## 3.fluid alluxioruntime to cache data from s3 bucket
-
+- create secret data-set-secret
+  ```sh
+  export AWS_ACCESS_KEY_ID=<your ak>
+  export AWS_SECRET_ACCESS_KEY=<your sk>
+  kubectl apply -f secret.yaml -n fluid-system
+  ```
 - create dataset, alluxioruntime pod. pvc will be auto-created. 
   ```sh
-  kubectl apply -f secret.yaml -n fluid-system
   kubectl apply -f dataset.yaml -n fluid-system
   kubectl apply -f alluxioruntime.yaml -n fluid-system
   ```
