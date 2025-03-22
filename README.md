@@ -51,11 +51,15 @@ The objective of this repo is to test the performance and scalability of fluid o
 
 - create dataset, alluxioruntime pod. pvc will be auto-created. 
   ```sh
+  kubectl apply -f secret.yaml -n fluid-system
   kubectl apply -f dataset.yaml -n fluid-system
   kubectl apply -f alluxioruntime.yaml -n fluid-system
   ```
 - check the status of the above
   ```sh
+  # Check secret status
+  kubectl get secret data-set-secret -n fluid-system
+
   # Check Dataset status
   kubectl get dataset s3-dataset -n fluid-system
   
