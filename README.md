@@ -80,7 +80,8 @@ The objective of this repo is to test the performance and scalability of fluid o
 kubectl exec -it csi-nodeplugin-fluid-xxxxx -c plugins -n fluid-system -- /bin/sh
 apk add --no-cache aws-cli
 aws --version
-
+```
+- create data-reader-pod
 ```sh
 #run the pod
 kubectl apply -f data-reader-pod.yaml -n fluid-system
