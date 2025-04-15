@@ -76,19 +76,19 @@ The objective of this repo is to test the performance and scalability of fluid o
 
 ## 4.create an app to read data from fluid alluxioruntime data cache
 - make sure that the plugins container of the csi-nodeplugin-fluid pod has aws-cli installed
-```sh
-kubectl exec -it csi-nodeplugin-fluid-xxxxx -c plugins -n fluid-system -- /bin/sh
-apk add --no-cache aws-cli
-aws --version
-```
+  ```sh
+  kubectl exec -it csi-nodeplugin-fluid-xxxxx -c plugins -n fluid-system -- /bin/sh
+  apk add --no-cache aws-cli
+  aws --version
+  ```
 - create data-reader-pod
-```sh
-#run the pod
-kubectl apply -f data-reader-pod.yaml -n fluid-system
-
-#check the status of the pod
-kubectl describe pod data-reader-pod -n fluid-system
-```
+  ```sh
+  #run the pod
+  kubectl apply -f data-reader-pod.yaml -n fluid-system
+  
+  #check the status of the pod
+  kubectl describe pod data-reader-pod -n fluid-system
+  ```
 
 ## delete resources
 ```sh
