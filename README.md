@@ -27,8 +27,25 @@ The objective of this repo is to test the performance and scalability of fluid o
 
   aws eks update-kubeconfig --region us-west-2 --name f6
   ```
+## 2. fluid-csi plugins docker image customization
+- fluid-csi plugins docker file customization and docker image generation
+  dockfile.csi could be acquired per link.
+  ```sh
+  docker build -f dockerfile.csi . #注意要运行这个命令的前提是docker app需要运行起来
+  ```
+  到docker app中找到生成的image记录，拿到tag的value
+- pull the image to ECR
+  ```sh
+  docker images
 
-## 2.fluid installation
+  docker tag 41531aa365b3 135709585800.dkr.ecr.us-west-2.amazonaws.com/fluid/csiplugins:latest
+
+  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 135709585800.dkr.ecr.us-west-2.amazonaws.com/fluid/csiplugins
+
+  docker push 135709585800.dkr.ecr.us-west-2.amazonaws.com/fluid/csiplugins:latest
+  ```
+
+## 3.fluid installation
 
 -  install helm
    ```sh
@@ -39,15 +56,23 @@ The objective of this repo is to test the performance and scalability of fluid o
 -  install fluid
    ```sh
    helm repo add fluid https://fluid-cloudnative.github.io/charts
+
    helm repo update
-   helm upgrade --install fluid fluid/fluid -n fluid-system --set csi.kubelet.kubeConfigFile="/var/lib/kubelet/kubeconfig" --set csi.kubelet.certDir="/etc/kubernetes/pki"
+
+   helm upgrade --install fluid fluid/fluid -n fluid-system \
+       --set csi.kubelet.kubeConfigFile="/var/lib/kubelet/kubeconfig" \
+       --set csi.kubelet.certDir="/etc/  kubernetes/pki" \
+       --set csi.plugins.imageName="csiplugins" \
+       --set csi.plugins.imagePrefix="135709585800.dkr.ecr.us-west-2.amazonaws.com/fluid" \
+       --set csi.plugins.imageTag="latest"
    ```
 
 - check fluid has been successfully installed
   ```sh
   kubectl get pod -n=fluid-system #all pods shoud be running
   ```
-## 3.fluid alluxioruntime to cache data from s3 bucket
+
+## 4.fluid alluxioruntime to cache data from s3 bucket
 - create secret data-set-secret
   ```sh
   export AWS_ACCESS_KEY_ID=<your ak>
@@ -74,7 +99,7 @@ The objective of this repo is to test the performance and scalability of fluid o
   kubectl get pvc s3-dataset -n fluid-system
   ```
 
-## 4.create an app to read data from fluid alluxioruntime data cache
+## 5.create an app to read data from fluid alluxioruntime data cache
 - make sure that the plugins container of the csi-nodeplugin-fluid pod has aws-cli installed
   ```sh
   kubectl exec -it csi-nodeplugin-fluid-xxxxx -c plugins -n fluid-system -- /bin/sh
@@ -90,7 +115,7 @@ The objective of this repo is to test the performance and scalability of fluid o
   kubectl describe pod data-reader-pod -n fluid-system
   ```
 
-## delete resources
+## 6.delete resources
 ```sh
 #delete the app pod
 kubectl delete pod data-reader-pod -n fluid-system
