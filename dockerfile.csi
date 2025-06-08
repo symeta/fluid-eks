@@ -1,0 +1,9 @@
+FROM fluidcloudnative/fluid-csi:v1.0.5-7e917c7
+
+# refer to https://github.com/fluid-cloudnative/fluid/blob/master/docker/Dockerfile.csi for more details
+# install aws-cli
+RUN apk add --no-cache aws-cli
+
+WORKDIR /
+
+ENTRYPOINT ["entrypoint.sh"]
