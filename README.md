@@ -45,8 +45,8 @@ The objective of this repo is to test the performance and scalability of fluid o
 
 - provision eks cluster
   ```sh
- # eksctl create cluster -f f6.yaml
- # Create cluster using envsubst to substitute the variables
+  # eksctl create cluster -f f6.yaml
+  # Create cluster using envsubst to substitute the variables
   envsubst < f6.yaml | eksctl create cluster -f -
 
   #wait till the cluster been provisioned, takes around 15 minutes
